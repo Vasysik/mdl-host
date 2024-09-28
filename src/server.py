@@ -1,11 +1,9 @@
 from flask import Flask, request, jsonify, send_from_directory
 from src.json_utils import load_tasks, save_tasks
 from config import DOWNLOAD_DIR
+import src.main_handler as main_handler
 import src.auth as auth
-import random
-import string
-import os
-import json
+import random, string, os, json
 
 app = Flask(__name__)
 app.json.sort_keys = False
@@ -285,5 +283,4 @@ def check_permissions():
     return jsonify({'message': 'Insufficient permissions'}), 403
 
 if __name__ == '__main__':
-    main_handler.start_processing()
     app.run(host='0.0.0.0')
