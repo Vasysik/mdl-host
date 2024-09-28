@@ -21,7 +21,11 @@ def get_track(task_id, url):
             os.makedirs(download_path)
 
         song = spotdl.search([url])[0]
-        file_path = spotdl.download(song, output=download_path)
+
+        current_dir = os.getcwd()
+        os.chdir(download_path)
+        file_path = spotdl.download(song)
+        os.chdir(current_dir)
 
         tasks = load_tasks()
         tasks[task_id].update(status='completed')
