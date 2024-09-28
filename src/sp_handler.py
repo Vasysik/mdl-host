@@ -2,7 +2,7 @@ from datetime import datetime
 from config import DOWNLOAD_DIR, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 from src.json_utils import load_tasks, save_tasks
 from spotdl import Spotdl
-import os
+import os, json
 
 def handle_task(executor, task_id, task):
     if task['task_type'] == 'sp_get_track':
@@ -44,16 +44,19 @@ def get_info(task_id, url):
         info = {
             "track_name": song.name,
             "artist": song.artist,
-            "album": song.album,
             "duration": song.duration,
-            "release_date": song.release_date.isoformat() if isinstance(song.release_date, datetime) else song.release_date,
             "url": song.url
         }
+
+        info_file = os.path.join(DOWNLOAD_DIR, task_id, f'info.json')
+        os.makedirs(os.path.dirname(info_file), exist_ok=True)
+        with open(info_file, 'w') as f:
+            json.dump(info, f)
 
         tasks = load_tasks()
         tasks[task_id].update(status='completed')
         tasks[task_id]['completed_time'] = datetime.now().isoformat()
-        tasks[task_id]['info'] = info
+        tasks[task_id]['file'] = f'/files/{task_id}/info.json'
         save_tasks(tasks)
     except Exception as e:
         handle_task_error(task_id, e)
