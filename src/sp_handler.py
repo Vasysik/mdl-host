@@ -39,7 +39,16 @@ def get_info(task_id, url):
         save_tasks(tasks)
 
         spotdl = Spotdl(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
-        info = spotdl.search([url])[0]
+        song = spotdl.search([url])[0]
+
+        info = {
+            "track_name": song.name,
+            "artist": song.artist,
+            "album": song.album,
+            "duration": song.duration,
+            "release_date": song.release_date.isoformat() if isinstance(song.release_date, datetime) else song.release_date,
+            "url": song.url
+        }
 
         tasks = load_tasks()
         tasks[task_id].update(status='completed')
