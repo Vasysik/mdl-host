@@ -1,5 +1,5 @@
 from datetime import datetime
-from config import DOWNLOAD_DIR
+from config import DOWNLOAD_DIR, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 from src.json_utils import load_tasks, save_tasks
 from spotdl import Spotdl
 import os
@@ -20,7 +20,7 @@ def get_track(task_id, url):
         if not os.path.exists(download_path):
             os.makedirs(download_path)
 
-        spotdl = Spotdl()
+        spotdl = Spotdl(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
         song = spotdl.search([url])[0]
         file_path = spotdl.download(song, output=download_path)
 
@@ -38,7 +38,7 @@ def get_info(task_id, url):
         tasks[task_id].update(status='processing')
         save_tasks(tasks)
 
-        spotdl = Spotdl()
+        spotdl = Spotdl(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
         info = spotdl.search([url])[0]
 
         tasks = load_tasks()
