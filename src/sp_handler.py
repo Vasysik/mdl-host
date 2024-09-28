@@ -20,7 +20,6 @@ def get_track(task_id, url):
         if not os.path.exists(download_path):
             os.makedirs(download_path)
 
-        spotdl = Spotdl(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
         song = spotdl.search([url])[0]
         file_path = spotdl.download(song, output=download_path)
 
@@ -38,9 +37,7 @@ def get_info(task_id, url):
         tasks[task_id].update(status='processing')
         save_tasks(tasks)
 
-        spotdl = Spotdl(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
         song = spotdl.search([url])[0]
-
         info = {
             "track_name": song.name,
             "artist": song.artist,
@@ -66,3 +63,5 @@ def handle_task_error(task_id, error):
     tasks[task_id].update(status='error', error=str(error), completed_time=datetime.now().isoformat())
     save_tasks(tasks)
     print(f"Error in task {task_id}: {str(error)}")
+
+spotdl = Spotdl(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
