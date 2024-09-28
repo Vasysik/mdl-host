@@ -57,8 +57,7 @@ def process_tasks():
             cleanup_orphaned_folders()
         time.sleep(1)
 
-def start_processing():
-    cleanup_processing_tasks()
-    cleanup_orphaned_folders()
-    thread = threading.Thread(target=process_tasks, daemon=True)
-    thread.start()
+cleanup_processing_tasks()
+cleanup_orphaned_folders()
+thread = threading.Thread(target=process_tasks, daemon=True)
+thread.start()

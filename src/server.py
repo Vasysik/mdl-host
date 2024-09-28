@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from src.json_utils import load_tasks, save_tasks
 from config import DOWNLOAD_DIR
-import src.main_handler as main_handler
 import src.auth as auth
 import random
 import string
