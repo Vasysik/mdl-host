@@ -2,7 +2,7 @@ from datetime import datetime
 from config import DOWNLOAD_DIR, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 from src.json_utils import load_tasks, save_tasks
 from savify import Savify
-from savify.types import Type, Format, Quality
+from savify.types import Type, Format, Quality, PathHolder
 import os
 import json
 
@@ -25,8 +25,7 @@ def get_track(task_id, url):
         s = Savify(api_credentials=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET),
                    quality=Quality.BEST,
                    download_format=Format.MP3,
-                   path_holder=download_path,
-                   quiet=True)
+                   path_holder=PathHolder(download_path))
 
         file_path = s.download(url)
 
@@ -44,7 +43,7 @@ def get_info(task_id, url):
         tasks[task_id].update(status='processing')
         save_tasks(tasks)
 
-        s = Savify(api_credentials=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET), quiet=True)
+        s = Savify(api_credentials=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET))
         track = s.get_track_info(url)
 
         info = {
@@ -55,7 +54,7 @@ def get_info(task_id, url):
         }
 
         info_file = os.path.join(DOWNLOAD_DIR, task_id, 'info.json')
-        os.makedirs(os.path.dirname(info_file), exist_ok=True)
+        os.makedirs(os.path.dirname(info_file))
         with open(info_file, 'w') as f:
             json.dump(info, f)
 
