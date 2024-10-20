@@ -2,7 +2,8 @@ from datetime import datetime
 from config import DOWNLOAD_DIR, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 from src.json_utils import load_tasks, save_tasks
 from savify import Savify
-from savify.types import Type, Format, Quality, PathHolder
+from savify.types import Type, Format, Quality
+from savify.utils import PathHolder
 import os
 import json
 
