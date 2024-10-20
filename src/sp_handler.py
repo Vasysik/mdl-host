@@ -27,15 +27,14 @@ def get_track(task_id, url):
         s = Savify(api_credentials=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET),
                     quality=Quality.BEST,
                     download_format=Format.MP3,
-                    path_holder=PathHolder(download_path),
-                    output_format="track.mp3")
+                    path_holder=PathHolder(download_path))
 
-        s.download(url)
+        file = s.download(url)
 
         tasks = load_tasks()
         tasks[task_id].update(status='completed')
         tasks[task_id]['completed_time'] = datetime.now().isoformat()
-        tasks[task_id]['file'] = f'/files/{task_id}/track.mp3'
+        tasks[task_id]['file'] = f'/files/{task_id}/{file[0]}'
         save_tasks(tasks)
     except Exception as e:
         error_message = f"Error in get_track: {str(e)}\n{traceback.format_exc()}"
