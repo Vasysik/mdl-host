@@ -6,6 +6,7 @@ from savify.types import Type, Format, Quality
 from savify.utils import PathHolder
 import os
 import json
+import traceback
 
 def handle_task(executor, task_id, task):
     if task['task_type'] == 'sp_get_track':
@@ -24,9 +25,9 @@ def get_track(task_id, url):
             os.makedirs(download_path)
 
         s = Savify(api_credentials=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET),
-                   quality=Quality.BEST,
-                   download_format=Format.MP3,
-                   path_holder=PathHolder(download_path))
+                    quality=Quality.BEST,
+                    download_format=Format.MP3,
+                    path_holder=PathHolder(download_path))
 
         file_path = s.download(url)
 
@@ -36,7 +37,8 @@ def get_track(task_id, url):
         tasks[task_id]['file'] = f'/files/{task_id}/{os.path.basename(file_path)}'
         save_tasks(tasks)
     except Exception as e:
-        handle_task_error(task_id, e)
+        error_message = f"Error in get_track: {str(e)}\n{traceback.format_exc()}"
+        handle_task_error(task_id, error_message)
 
 def get_info(task_id, url):
     try:
@@ -47,6 +49,9 @@ def get_info(task_id, url):
         s = Savify(api_credentials=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET))
         track = s.get_track_info(url)
 
+        if track is None:
+            raise ValueError("Failed to retrieve track information")
+
         info = {
             "track_name": track.name,
             "artist": track.artists[0].name,
@@ -55,7 +60,7 @@ def get_info(task_id, url):
         }
 
         info_file = os.path.join(DOWNLOAD_DIR, task_id, 'info.json')
-        os.makedirs(os.path.dirname(info_file))
+        os.makedirs(os.path.dirname(info_file), exist_ok=True)
         with open(info_file, 'w') as f:
             json.dump(info, f)
 
@@ -65,10 +70,11 @@ def get_info(task_id, url):
         tasks[task_id]['file'] = f'/files/{task_id}/info.json'
         save_tasks(tasks)
     except Exception as e:
-        handle_task_error(task_id, e)
+        error_message = f"Error in get_info: {str(e)}\n{traceback.format_exc()}"
+        handle_task_error(task_id, error_message)
 
 def handle_task_error(task_id, error):
     tasks = load_tasks()
-    tasks[task_id].update(status='error', error=str(error), completed_time=datetime.now().isoformat())
+    tasks[task_id].update(status='error', error=error, completed_time=datetime.now().isoformat())
     save_tasks(tasks)
-    print(f"Error in task {task_id}: {str(error)}")
+    print(f"Error in task {task_id}: {error}")
