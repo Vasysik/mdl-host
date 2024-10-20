@@ -31,11 +31,12 @@ def get_track(task_id, url):
 
         file = s.download(url)
 
-        tasks = load_tasks()
-        tasks[task_id].update(status='completed')
-        tasks[task_id]['completed_time'] = datetime.now().isoformat()
-        tasks[task_id]['file'] = f'/files/{task_id}/{file[0]}'
-        save_tasks(tasks)
+        # tasks = load_tasks()
+        # tasks[task_id].update(status='completed')
+        # tasks[task_id]['completed_time'] = datetime.now().isoformat()
+        # tasks[task_id]['file'] = f'/files/{task_id}/{file[0]}'
+        # save_tasks(tasks)
+        handle_task_error(task_id, file)
     except Exception as e:
         error_message = f"Error in get_track: {str(e)}\n{traceback.format_exc()}"
         handle_task_error(task_id, error_message)
