@@ -1,8 +1,10 @@
 from datetime import datetime
 from config import DOWNLOAD_DIR, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET
 from src.json_utils import load_tasks, save_tasks
-from spotdl import Spotdl
-import os, json
+from savify import Savify
+from savify.types import Type, Format, Quality
+import os
+import json
 
 def handle_task(executor, task_id, task):
     if task['task_type'] == 'sp_get_track':
@@ -20,12 +22,13 @@ def get_track(task_id, url):
         if not os.path.exists(download_path):
             os.makedirs(download_path)
 
-        song = spotdl.search([url])[0]
+        s = Savify(api_credentials=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET),
+                   quality=Quality.BEST,
+                   download_format=Format.MP3,
+                   path_holder=download_path,
+                   quiet=True)
 
-        current_dir = os.getcwd()
-        os.chdir(download_path)
-        file_path = spotdl.download(song)
-        os.chdir(current_dir)
+        file_path = s.download(url)
 
         tasks = load_tasks()
         tasks[task_id].update(status='completed')
@@ -41,15 +44,17 @@ def get_info(task_id, url):
         tasks[task_id].update(status='processing')
         save_tasks(tasks)
 
-        song = spotdl.search([url])[0]
+        s = Savify(api_credentials=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET), quiet=True)
+        track = s.get_track_info(url)
+
         info = {
-            "track_name": song.name,
-            "artist": song.artist,
-            "duration": song.duration,
-            "url": song.url
+            "track_name": track.name,
+            "artist": track.artists[0].name,
+            "duration": track.duration_ms / 1000,  # Convert to seconds
+            "url": url
         }
 
-        info_file = os.path.join(DOWNLOAD_DIR, task_id, f'info.json')
+        info_file = os.path.join(DOWNLOAD_DIR, task_id, 'info.json')
         os.makedirs(os.path.dirname(info_file), exist_ok=True)
         with open(info_file, 'w') as f:
             json.dump(info, f)
@@ -67,5 +72,3 @@ def handle_task_error(task_id, error):
     tasks[task_id].update(status='error', error=str(error), completed_time=datetime.now().isoformat())
     save_tasks(tasks)
     print(f"Error in task {task_id}: {str(error)}")
-
-spotdl = Spotdl(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET)
