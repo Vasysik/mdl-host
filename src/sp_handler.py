@@ -7,6 +7,11 @@ from savify.utils import PathHolder
 import os
 import json
 import traceback
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 def handle_task(executor, task_id, task):
     if task['task_type'] == 'sp_get_track':
@@ -27,7 +32,8 @@ def get_track(task_id, url):
         s = Savify(api_credentials=(SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET),
                     quality=Quality.BEST,
                     download_format=Format.MP3,
-                    path_holder=PathHolder(download_path))
+                    path_holder=PathHolder(download_path),
+                    logger=logger)
 
         file = s.download(url)
 
